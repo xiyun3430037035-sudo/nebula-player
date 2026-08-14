@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data: https: http:; script-src 'self'">
+<title>Nebula Remote</title>
+<link rel="stylesheet" href="lyric.css">
+</head>
+<body>
+  <div class="card">
+    <div class="bg-blur" id="bg-blur"></div>
+    <div class="titlebar">
+      <button class="close-btn" id="close-btn" title="关闭遥控窗">✕</button>
+    </div>
+    <div class="body">
+      <div class="cover" id="cover"><span class="ph" id="cover-ph">N</span></div>
+      <div class="info">
+        <div class="info-top">
+          <div class="name" id="name">Nebula</div>
+          <div class="artist" id="artist"></div>
+        </div>
+        <div class="swap">
+          <div class="ctl-row show" id="ctl-row">
+            <button class="ctl" id="ctl-prev" title="上一首">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+            <button class="ctl ctl-main" id="ctl-toggle" title="播放/暂停">
+              <svg id="ctl-icon" width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path id="ctl-path" d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button class="ctl" id="ctl-next" title="下一首">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6h2v12h-2z"/></svg>
+            </button>
+          </div>
+          <div class="lyric-scroll hide" id="lyric-scroll">
+            <div class="l-line cur" id="l-cur"></div>
+            <div class="l-line trans" id="l-trans"></div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <span class="t" id="t-cur">0:00</span>
+          <div class="bar">
+            <div class="bar-fill" id="bar-fill"></div>
+            <input class="seek" id="seek" type="range" min="0" max="1" step="0.1" value="0">
+          </div>
+          <span class="t" id="t-dur">0:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="lyric.js"></script>
+</body>
+</html>

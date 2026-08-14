@@ -1,0 +1,303 @@
+/* ============ Nebula 桌面歌词小窗样式(全部由 CSS 变量驱动,JS 按配置注入) ============ */
+html {
+  --acc: #3C4A6E;              /* 主文字色(主题色) */
+  --acc-bar: #6B7FD4;          /* 进度条填充(主题色亮化) */
+  --acc-soft: rgba(60, 74, 110, 0.45);  /* 次要文字 */
+  --acc-faint: rgba(60, 74, 110, 0.4);  /* 时间戳等弱文字 */
+  --acc-25: rgba(60, 74, 110, 0.25);    /* 占位图标 */
+  --acc-62: rgba(60, 74, 110, 0.62);    /* 按钮图标 */
+  --acc-14: rgba(60, 74, 110, 0.14);    /* 进度轨道/边框 */
+  --acc-12: rgba(60, 74, 110, 0.12);    /* 按钮悬停底 */
+  --acc-10: rgba(60, 74, 110, 0.1);     /* 关闭按钮悬停底 */
+  --acc-06: rgba(60, 74, 110, 0.06);    /* 按钮底 */
+  --acc-main-bg: rgba(60, 74, 110, 0.18);     /* 主按钮底 */
+  --acc-main-hover: rgba(60, 74, 110, 0.28);  /* 主按钮悬停底 */
+  --card-bg: rgba(247, 247, 252, 0.92); /* 卡片背景 */
+  --bg-mask: rgba(247, 247, 252, 0.55); /* 模糊底遮罩 */
+  --cover-size: 86px;          /* 封面尺寸 */
+  --lyric-size: 14px;          /* 歌词字号 */
+  /* 元素垂直偏移(布局微调,px) */
+  --off-cover: 0px;
+  --off-name: 0px;
+  --off-swap: 0px;
+  --off-bar: 0px;
+}
+
+html, body {
+  background: transparent;
+  margin: 0;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  height: 100vh;
+  width: 100vw;
+}
+/* 卡片 = 全窗口,浅色半透明,圆角干净可见(仅内描边,无外投影避免四角阴影) */
+.card {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: inset 0 0 0 1px var(--acc-10);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: grab;
+  transition: background-color 300ms;
+}
+.card:active { cursor: grabbing; }
+body.paused .card { opacity: 0.85; }
+/* 封面模糊色斑背景(浅色遮罩) */
+.bg-blur {
+  position: absolute;
+  inset: -24px;
+  background-image: var(--bg-img, none);
+  background-size: cover;
+  background-position: center;
+  filter: blur(48px) saturate(1.1);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bg-blur::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg-mask);
+}
+/* 顶部拖拽条 */
+.titlebar {
+  position: relative;
+  height: 28px;
+  flex-shrink: 0;
+  z-index: 5;
+}
+.close-btn {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--acc-faint);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  z-index: 6;
+}
+.close-btn:hover { color: var(--acc); background: var(--acc-10); }
+/* 穿透模式:纯看板,隐藏全部交互元素 */
+body.through .close-btn { display: none; }
+body.through .ctl-row { opacity: 0; pointer-events: none; }
+/* ============ 主体:封面 + 信息(可左右互换) ============ */
+.body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px 10px;
+  z-index: 2;
+}
+body.cover-right .body { flex-direction: row-reverse; }
+body.no-cover .cover { display: none; }
+.cover {
+  width: var(--cover-size);
+  height: var(--cover-size);
+  border-radius: 12px;
+  background: rgba(219, 227, 250, 0.6);
+  border: 1px solid var(--acc-10);
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 12px var(--acc-18, rgba(60, 74, 110, 0.18));
+  transform: translateY(var(--off-cover));
+}
+.cover img {
+  width: var(--cover-size) !important;
+  height: var(--cover-size) !important;
+  max-width: var(--cover-size) !important;
+  max-height: var(--cover-size) !important;
+  object-fit: cover;
+  display: block;
+}
+.cover .ph {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--acc-25);
+}
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 2px 0;
+}
+.info-top { transform: translateY(var(--off-name)); }
+.name {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--acc);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.artist {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--acc-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+/* 进度条 + 时间戳(space-between 自动贴底) */
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translateY(var(--off-bar));
+}
+.t {
+  font-size: 9px;
+  color: var(--acc-faint);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 24px;
+}
+.t:last-child { text-align: right; }
+.bar {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--acc-14);
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: var(--acc-bar);
+}
+/* 透明大热区 range 滑块(可拖动 seek) */
+.seek {
+  position: absolute;
+  inset: -8px 0;
+  width: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+/* ============ 歌词:单条显示 + 译文(居中,三排时上下对称展开) ============ */
+.lyric-scroll {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 10px;
+  z-index: 3;
+}
+.l-line.cur {
+  font-size: var(--lyric-size);
+  font-weight: 600;
+  color: var(--acc);
+  text-align: center;
+  line-height: 1.5;
+  word-break: break-word;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* 只有一行时字更大 */
+.l-line.cur.single {
+  font-size: calc(var(--lyric-size) + 2px);
+  line-height: 1.4;
+}
+.l-line.trans {
+  font-size: calc(var(--lyric-size) - 3px);
+  font-weight: 500;
+  color: var(--acc-soft);
+  text-align: center;
+  line-height: 1.4;
+  word-break: break-word;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.l-line.cur.out, .l-line.trans.out { opacity: 0; transform: translateY(-8px); }
+body.empty .l-line.cur { opacity: 0.35; }
+/* ============ 控制按钮(浅色) ============ */
+.ctl {
+  background: var(--acc-06);
+  border: none;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--acc-62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 150ms, color 150ms, transform 150ms;
+}
+.ctl:hover { background: var(--acc-12); color: var(--acc); }
+.ctl:active { transform: scale(0.92); }
+.ctl-main {
+  width: 36px;
+  height: 36px;
+  background: var(--acc-main-bg);
+  color: var(--acc);
+}
+.ctl-main:hover { background: var(--acc-main-hover); }
+.ctl:disabled { opacity: 0.3; cursor: not-allowed; }
+/* 控制区与歌词互斥切换(space-between 自动居中于标题与进度条之间) */
+.swap {
+  position: relative;
+  height: 88px;
+  transform: translateY(var(--off-swap));
+}
+.ctl-row, .lyric-scroll {
+  position: absolute;
+  inset: 0;
+  transition: opacity 260ms cubic-bezier(0.4, 0, 0.2, 1), transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* 控制按钮与歌词同居中(切换不跳位) */
+.ctl-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+}
+.ctl-row.show { opacity: 1; transform: translateY(0); }
+.ctl-row.hide { opacity: 0; transform: translateY(4px); pointer-events: none; }
+.lyric-scroll.show { opacity: 1; transform: translateY(0); }
+.lyric-scroll.hide { opacity: 0; transform: translateY(-4px); pointer-events: none; }
+body.empty .l-line.cur { opacity: 0.35; }

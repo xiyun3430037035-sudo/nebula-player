@@ -1,0 +1,61 @@
+{
+  "name": "netease-player",
+  "version": "2.0.0-rc15",
+  "description": "Nebula - 个人自用网易云音乐播放器(扫码/网页登录,无损播放与下载)",
+  "main": "main.js",
+  "author": "local",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test:api": "node test/api.test.js",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "node-forge": "^1.4.0"
+  },
+  "build": {
+    "appId": "com.local.neteaseplayer",
+    "productName": "Nebula",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "preload-lyric.js",
+      "core/**/*",
+      "renderer/**/*",
+      "build/icon.ico",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nebula",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "productName": "Nebula"
+}
